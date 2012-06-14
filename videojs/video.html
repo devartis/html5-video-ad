@@ -1,0 +1,111 @@
+<html>
+    <head>
+        <link href="http://vjs.zencdn.net/c/video-js.css" rel="stylesheet">
+        <script src="http://vjs.zencdn.net/c/video.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+        <style type="text/css">
+            #video, #video_ad {
+                margin: 20px auto;
+            }
+
+            #video_ad {
+                display: none;
+            }
+
+            #currentFrame {
+                display: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <video id="video" class="video-js vjs-default-skin" controls
+            preload="auto" width="640" height="264"
+            data-setup="{}">
+            <!--
+            <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4'>
+            <source src="http://video-js.zencoder.com/oceans-clip.webm" type="video/webm">
+            -->
+            <source src="oceans-clip.mp4" type='video/mp4'>
+            <source src="oceans-clip.webm" type="video/webm">
+        </video>
+
+        <video id="video_ad" class="video-js vjs-default-skin"
+            preload="auto" width="640" height="264"
+            data-setup="{}">
+            <source src="ad.mp4" type='video/mp4'>
+        </video>
+
+        <canvas id="currentFrame" width="640" height="264" style="display:none;"></canvas>
+
+        <script type="text/javascript">
+            var canvas = document.getElementById('currentFrame');
+            var context = canvas.getContext('2d');
+            var player = _V_("video");
+            var adPlayer = _V_("video_ad");
+            var inAd = false;
+            player.tag.crossOrigin = '';
+
+            var processFrame = function() {
+                context.drawImage(player.tag, 0, 0, 640, 264);
+                var rgb = calculateAverageColor(context.getImageData(0, 0, 640, 264));
+                $('body').css('background-color', 'rgb(' + rgb[0] + ', ' + rgb[1] + ',' + rgb[2] + ')');
+
+                if (!inAd && player.currentTime() > 3 && player.currentTime() < 6) {
+                    $('#video').hide();
+                    $('#video_ad').show();
+                    adPlayer.currentTime(0);
+                    player.volume(0.0);
+                    adPlayer.play();
+                    inAd = true;
+                }
+                if (inAd && player.currentTime() > 6) {
+                    $('#video').show();
+                    $('#video_ad').hide();
+                    adPlayer.pause();
+                    player.volume(1.0);
+                    inAd = false;
+                }
+
+                setTimeout(processFrame, 0);
+            }
+
+            player.ready(function(){
+                this.play();
+                setTimeout(processFrame, 0);
+            });
+
+            adPlayer.ready(function() {
+                this.play();
+            });
+            adPlayer.addEvent('loadeddata', function() {
+                this.pause();
+                this.currentTime(0);
+                this.removeEvent('loadeddata');
+            });
+
+
+            function calculateAverageColor(idata) {
+                var data = idata.data;
+                // Loop through the pixels, turning them grayscale
+                var avg_r = 0;
+                var avg_g = 0;
+                var avg_b = 0;
+                for(var i = 0; i < data.length; i+=4) {
+                    var r = data[i];
+                    var g = data[i+1];
+                    var b = data[i+2];
+                    avg_r += r;
+                    avg_g += g;
+                    avg_b += b;
+                }
+                avg_r = Math.round(avg_r / (data.length / 4));
+                avg_g = Math.round(avg_g / (data.length / 4));
+                avg_b = Math.round(avg_b / (data.length / 4));
+
+                return [avg_r, avg_g, avg_b];
+            }
+        </script>
+    </body>
+</html>
