@@ -1,0 +1,116 @@
+<html>
+    <head>
+        <script src="jwplayer.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+        <style type="text/css">
+            #video, #video_ad {
+                margin: 20px auto;
+            }
+
+            #video_ad {
+                display: none;
+            }
+
+            #currentFrame {
+                display: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="video">Loading the player...</div>
+        <div id="video_ad">Loading the player...</div>
+
+        <canvas id="currentFrame" width="640" height="264"></canvas>
+
+        <script type="text/javascript">
+            var canvas = document.getElementById('currentFrame');
+            var context = canvas.getContext('2d');
+
+            var player = jwplayer("video");
+            player.setup({
+                modes: [
+                    { type: "html5" },
+                    { type: "flash", src: "player.swf" }
+                ],
+                height: 270,
+                width: 480,
+                levels: [
+                    { file: "../videos/oceans-clip.mp4" }, // H.264 version
+                    { file: "../videos/oceans-clip.webm" } // WebM version
+                ]
+            });
+
+            var adplayer = jwplayer("video_ad");
+            adplayer.setup({
+                modes: [
+                    { type: "html5" },
+                    { type: "flash", src: "player.swf" }
+                ],
+                height: 270,
+                width: 480,
+                controlbar: 'none',
+                autostart: 'false',
+                levels: [
+                    { file: "../videos/ad.mp4" }, // H.264 version
+                    { file: "../videos/ad.webm" }, // WebM version
+                ],
+                events: {
+                    onReady: function(e) { this.pause(true); }
+                }
+            });
+
+            var inAd = false;
+            var processFrame = function() {
+
+                setTimeout(processFrame, 0);
+
+                if ($('#video_video').length > 0) {
+                    context.drawImage($('#video_video')[0], 0, 0, 640, 264);
+                    var rgb = calculateAverageColor(context.getImageData(0, 0, 640, 264));
+                    $('body').css('background-color', 'rgb(' + rgb[0] + ', ' + rgb[1] + ',' + rgb[2] + ')');
+
+                    if (!inAd && player.getPosition() > 3) {
+                        $('#video').hide();
+                        $('#video_ad').show();
+                        adplayer.seek(4);
+                        adplayer.play(true);
+                        inAd = true;
+                    }
+                    if (inAd && player.getPosition() > 8) {
+                        $('#video').show();
+                        $('#video_ad').hide();
+                        adplayer.play(false);
+                        inAd = false;
+                    }
+                }
+            };
+
+
+            function calculateAverageColor(idata) {
+                var data = idata.data;
+                // Loop through the pixels, turning them grayscale
+                var avg_r = 0;
+                var avg_g = 0;
+                var avg_b = 0;
+                for(var i = 0; i < data.length; i+=4) {
+                    var r = data[i];
+                    var g = data[i+1];
+                    var b = data[i+2];
+                    avg_r += r;
+                    avg_g += g;
+                    avg_b += b;
+                }
+                avg_r = Math.round(avg_r / (data.length / 4));
+                avg_g = Math.round(avg_g / (data.length / 4));
+                avg_b = Math.round(avg_b / (data.length / 4));
+
+                return [avg_r, avg_g, avg_b];
+            }
+
+            setTimeout(processFrame, 0);
+        </script>
+
+    </body>
+</html>

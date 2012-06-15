@@ -1,0 +1,48 @@
+<plugin>
+	<title>Snapshot</title>
+	<filename>snapshot.swf</filename>
+	<version>1</version>
+	<compatibility>Compatible with 4.1</compatibility>
+	<author>LongTail Video</author>
+	<description><![CDATA[
+		This plugins renders a JPG snapshot from a video frame.
+		It sends the JPG to a serverside script for processing and displays the returning URL.
+		Note that the server hosting your FLV files needs to have a crossdomain XML for this.
+		Here is a very basic example of such a (PHP) script.
+		
+		<?php
+		if(isset ($GLOBALS["HTTP_RAW_POST_DATA"])) {
+			$im =  $GLOBALS["HTTP_RAW_POST_DATA"];
+			$rn = rand();
+			$fp = fopen('snapshots/'.$rn.'.jpg', 'wb');
+			fwrite($fp, $im);
+			fclose($fp);
+			if (exif_imagetype($rn.'.jpg') == IMAGETYPE_JPEG) {
+				echo 'http://www.myserver.com/snapshots/'.$rn.'.jpg';
+				exit();
+			}
+		}
+		echo "error";
+		?>]]>
+	</description>
+	<href>http://developer.longtailvideo.com/trac/browser/plugins/snapshot</href>
+
+	<flashvars>
+		<flashvar>
+			<name>bitmap</name>
+			<default>true</default>
+			<description>
+				Set this to "false" if you want to render the thumbnail serverside.
+				The plugin will then not post the JPG data, but two variables:
+				* 'file': location of the currently playing video
+				* 'position': position of the snapshot, in seconds
+			</description>
+		</flashvar>
+		<flashvar>
+			<name>script</name>
+			<default></default>
+			<description>The location of the serverside script (PHP,ASP,..) that processes the snapshot. It must echo the HTTP url of the resulting image, so the player can display the result to the user.</description>
+		</flashvar>
+	</flashvars>
+
+</plugin>

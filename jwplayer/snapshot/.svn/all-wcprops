@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svn/!svn/ver/1575/tags/plugins/snapshot/1.0
+END
+snapshot.swf
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/1575/tags/plugins/snapshot/1.0/snapshot.swf
+END
+snapshot.xml
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/1575/tags/plugins/snapshot/1.0/snapshot.xml
+END
+build.sh
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/1575/tags/plugins/snapshot/1.0/build.sh
+END
