@@ -1,0 +1,117 @@
+<html>
+<head>
+    <!--<link href="http://vjs.zencdn.net/c/video-js.css" rel="stylesheet">
+   <script src="http://vjs.zencdn.net/c/video.js"></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <!--<script src="http://localhost/kaltura/mwEmbedLoader.php"></script>-->
+
+    <style type="text/css">
+        #video, #video_ad {
+            margin: 20px auto;
+        }
+
+        #video_ad {
+            display: none;
+        }
+
+        #currentFrame {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<video id="video" controls preload="auto" width="640" height="264">
+    <source src="../videos/oceans-clip.mp4" type='video/mp4'>
+    <source src="../videos/oceans-clip.webm" type="video/webm">
+</video>
+
+<!--<video id="video_ad" width="640" height="264">-->
+<!--<source src="../videos/ad.mp4" type='video/mp4'>-->
+<!--</video>-->
+
+<canvas id="currentFrame" width="640" height="264"></canvas>
+
+<script type="text/javascript" src="kaltura_player.js"></script>
+<script type="text/javascript">
+    window.jsCallbackReady = function() {
+        console.log('callback');
+        var player = new KalturaPlayer(document.getElementById('video'));
+        player.play();
+
+        var canvas = document.getElementById('currentFrame');
+        var context = canvas.getContext('2d');
+        var inAd = false;
+
+        var processFrame = function() {
+            context.drawImage(player.getVideo(), 0, 0, 640, 264);
+            var rgb = calculateAverageColor(context.getImageData(0, 0, 640, 264));
+            $('body').css('background-color', 'rgb(' + rgb[0] + ', ' + rgb[1] + ',' + rgb[2] + ')');
+
+            /*
+             if (!inAd && player.currentTime() > 3 && player.currentTime() < 6) {
+             $('#video').hide();
+             $('#video_ad').show();
+             adPlayer.currentTime(0);
+             player.volume(0.0);
+             adPlayer.play();
+             inAd = true;
+             }
+             if (inAd && player.currentTime() > 6) {
+             $('#video').show();
+             $('#video_ad').hide();
+             adPlayer.pause();
+             player.volume(1.0);
+             inAd = false;
+             }
+             */
+
+            setTimeout(processFrame, 0);
+        }
+
+        setTimeout(processFrame, 0);
+
+        /*
+         player.ready(function(){
+         this.play();
+         setTimeout(processFrame, 0);
+         });
+
+         adPlayer.ready(function() {
+         this.play();
+         });
+         adPlayer.addEvent('loadeddata', function() {
+         this.pause();
+         this.currentTime(0);
+         this.removeEvent('loadeddata');
+         });
+         */
+
+        function calculateAverageColor(idata) {
+            var data = idata.data;
+            // Loop through the pixels, turning them grayscale
+            var avg_r = 0;
+            var avg_g = 0;
+            var avg_b = 0;
+            for(var i = 0; i < data.length; i+=4) {
+                var r = data[i];
+                var g = data[i+1];
+                var b = data[i+2];
+                avg_r += r;
+                avg_g += g;
+                avg_b += b;
+            }
+            avg_r = Math.round(avg_r / (data.length / 4));
+            avg_g = Math.round(avg_g / (data.length / 4));
+            avg_b = Math.round(avg_b / (data.length / 4));
+
+            return [avg_r, avg_g, avg_b];
+        }
+    }
+
+    setTimeout(jsCallbackReady, 1000);
+</script>
+
+<script src="http://tvaz-pd.kaltura.com.edgesuite.net/html5/html5lib/v1.6.12.27i/mwEmbedLoader.php/p/459791/uiconf_id/5260641"></script>
+</body>
+</html>
