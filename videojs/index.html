@@ -3,6 +3,7 @@
         <link href="http://vjs.zencdn.net/c/video-js.css" rel="stylesheet">
         <script src="http://vjs.zencdn.net/c/video.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <script src="player.js"></script>
 
         <style type="text/css">
             #video, #video_ad {
@@ -36,74 +37,26 @@
         <canvas id="currentFrame" width="640" height="264"></canvas>
 
         <script type="text/javascript">
-            var canvas = document.getElementById('currentFrame');
-            var context = canvas.getContext('2d');
-            var player = _V_("video");
-            var adPlayer = _V_("video_ad");
-            var inAd = false;
-            player.tag.crossOrigin = '';
+            var player = new Player('video');
+            var adPlayer = new Player('video_ad');
             
-            var processFrame = function() {
-                // context.drawImage(img,sx,sy,swidth,sheight,x,y,width,height);
-                context.drawImage(player.tag, 672, 15, 15, 15, 0, 0, 15, 15);
-                var rgb = calculateAverageColor(context.getImageData(0, 0, 15, 15));
-                
-                if (!inAd && rgb[0] <= 20 && rgb[1] <= 20 && rgb[2] >= 250) {
-                    $('#video').hide();
-                    $('#video_ad').show();
-                    adPlayer.currentTime(0);
-                    player.volume(0.0);
-                    adPlayer.play();
-                    inAd = true;
-                }
-                if (inAd && !(rgb[0] <= 20 && rgb[1] <= 20 && rgb[2] >= 250)) {
-                    $('#video').show();
-                    $('#video_ad').hide();
-                    adPlayer.pause();
-                    adPlayer.currentTime(0);
-                    player.volume(1.0);
-                    inAd = false;
-                }
-
-                setTimeout(processFrame, 100);
-            }
-
-            // Autoplay
-            player.ready(function(){
-                this.play();
-                setTimeout(processFrame, 0);
+            player.onAdStart(function() {
+                $('#video').hide();
+                $('#video_ad').show();
+                player.volume(0.0);
+                adPlayer.play();
             });
 
-            // Preload
-            adPlayer.ready(function() {
-                this.play();
-            });
-            adPlayer.addEvent('loadeddata', function() {
-                this.pause();
-                this.currentTime(0);
-                this.removeEvent('loadeddata');
+            player.onAdStop(function() {
+                $('#video').show();
+                $('#video_ad').hide();
+                player.volume(1.0);
+                adPlayer.pause();
+                adPlayer.currentTime(0);
             });
 
-            function calculateAverageColor(idata) {
-                var data = idata.data;
-                var avg_r = 0;
-                var avg_g = 0;
-                var avg_b = 0;
-
-                for(var i = 0; i < data.length; i+=4) {
-                    var r = data[i];
-                    var g = data[i+1];
-                    var b = data[i+2];
-                    avg_r += r;
-                    avg_g += g;
-                    avg_b += b;
-                }
-                avg_r = Math.round(avg_r / (data.length / 4));
-                avg_g = Math.round(avg_g / (data.length / 4));
-                avg_b = Math.round(avg_b / (data.length / 4));
-
-                return [avg_r, avg_g, avg_b];
-            }
+            player.autoPlay();
+            adPlayer.preload();
         </script>
     </body>
 </html>
