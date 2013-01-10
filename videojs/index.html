@@ -14,7 +14,7 @@
             }
 
             #currentFrame {
-                /*display: none;*/
+                display: none;
             }
         </style>
     </head>
@@ -23,6 +23,7 @@
         <video id="video" class="video-js vjs-default-skin" controls
             preload="auto" width="640" height="264"
             data-setup="{}">
+            <!-- <source src="../videos/oceans-clip.webm" type='video/webm'> -->
             <source src="../videos/video_marca1-2.mp4" type='video/mp4'>
         </video>
 
@@ -41,38 +42,39 @@
             var adPlayer = _V_("video_ad");
             var inAd = false;
             player.tag.crossOrigin = '';
-
+            
             var processFrame = function() {
                 // context.drawImage(img,sx,sy,swidth,sheight,x,y,width,height);
                 context.drawImage(player.tag, 672, 15, 15, 15, 0, 0, 15, 15);
                 var rgb = calculateAverageColor(context.getImageData(0, 0, 15, 15));
-                $('body').css('background-color', 'rgb(' + rgb[0] + ', ' + rgb[1] + ',' + rgb[2] + ')');
-
+                
                 if (!inAd && rgb[0] <= 20 && rgb[1] <= 20 && rgb[2] >= 250) {
                     $('#video').hide();
                     $('#video_ad').show();
                     adPlayer.currentTime(0);
                     player.volume(0.0);
-                    player.pause();
                     adPlayer.play();
                     inAd = true;
                 }
-                if (inAd && adPlayer.currentTime() > 4) {
+                if (inAd && !(rgb[0] <= 20 && rgb[1] <= 20 && rgb[2] >= 250)) {
                     $('#video').show();
                     $('#video_ad').hide();
                     adPlayer.pause();
+                    adPlayer.currentTime(0);
                     player.volume(1.0);
-                    // player.play();
+                    inAd = false;
                 }
 
-                setTimeout(processFrame, 500);
+                setTimeout(processFrame, 100);
             }
 
+            // Autoplay
             player.ready(function(){
                 this.play();
                 setTimeout(processFrame, 0);
             });
 
+            // Preload
             adPlayer.ready(function() {
                 this.play();
             });
@@ -81,7 +83,6 @@
                 this.currentTime(0);
                 this.removeEvent('loadeddata');
             });
-
 
             function calculateAverageColor(idata) {
                 var data = idata.data;

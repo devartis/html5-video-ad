@@ -1,8 +1,6 @@
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/html">
 <head>
-    <!--<script type="text/javascript" src="jquery-1.8.0.min.js"></script>-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 </head>
 <body style="background-color: white;">
@@ -17,7 +15,6 @@
 
     // create the audio context (chrome only for now)
     var context = new webkitAudioContext();
-    var audioBuffer;
     var sourceNode;
     var analyser;
     var javascriptNode;
@@ -35,6 +32,11 @@
     gradient.addColorStop(0,'#ffffff');
 
 
+    // load the sound
+    setupAudioNodes();
+    // loadSound("wagner-short.ogg");
+
+
     function setupAudioNodes() {
 
         // setup a javascript node
@@ -42,9 +44,10 @@
         // connect to destination, else it isn't called
         javascriptNode.connect(context.destination);
 
+
         // setup a analyzer
         analyser = context.createAnalyser();
-        analyser.smoothingTimeConstant = 0.3;
+        // analyser.smoothingTimeConstant = 0.3;
         analyser.fftSize = 512;
 
         // create a media element source node
@@ -56,15 +59,11 @@
         sourceNode.connect(context.destination);
     }
 
-    // load the sound
-    setupAudioNodes();
 
     // when the javascript node is called
     // we use information from the analyzer node
     // to draw the volume
     javascriptNode.onaudioprocess = function() {
-
-        console.log('onaudioprocess');
 
         // get the average for the first channel
         var array =  new Uint8Array(analyser.frequencyBinCount);
@@ -84,7 +83,7 @@
             var value = array[i];
 
             ctx.fillRect(i*5,325-value,3,325);
-            //console.log([i,value])
+            //  console.log([i,value])
         }
     };
 
