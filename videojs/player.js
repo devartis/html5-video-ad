@@ -72,6 +72,7 @@ Player.prototype.createCanvas = function() {
     var canvas = document.createElement('canvas');
     canvas.width = 640;
     canvas.height = 264;
+    $(canvas).hide();
     document.getElementsByTagName('body')[0].appendChild(canvas);
 
     return canvas;
