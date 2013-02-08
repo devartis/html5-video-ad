@@ -1,0 +1,72 @@
+<html>
+<head>
+    <style type="text/css">
+        #video, #video_ad {
+            margin: 20px auto;
+        }
+
+        #video_ad {
+            display: none;
+        }
+
+        #currentFrame {
+            /*display: none;*/
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="video" style="width:640px;height:264px;">
+        <!--  SEO and video metadata go here -->
+        <span property="dc:description" content="folgers coffee commercial"></span>
+        <span property="media:title" content="FolgersCoffe.mpeg"></span>
+        <span property="media:width" content="640"></span>
+        <span property="media:height" content="264"></span>
+    </div>
+
+    <canvas id="currentFrame" width="640" height="264"></canvas>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="http://html5.kaltura.org/js"></script> 
+    <script>
+        var embedPlayer = $('#video').get(0);
+        var vastUrl = "http://ads.us.e-planning.net/eb/4/d1c8/55c313209453df78?o=v&ma=10&vv=2&kw_genero=masculino&kw_megusta=cocacola&kw_deportista=leonel%20messi|rafael%20nadal";
+        mw.setConfig('KalturaSupport.LeadWithHTML5', true);
+        mw.setConfig('EmbedPlayer.UseFlashOnAndroid', false);
+        
+        var kdp;
+        kWidget.embed({
+            'targetId': 'video',
+            'wid': '_459791',
+            'uiconf_id' : '5260641',
+            'entry_id': 'http://localhost/video/videos/oceans-clip.mp4',
+            'source_type': 'url',
+            // 'entry_id' : '0_uka1msg4',
+            'flashvars':{
+                'externalInterfaceDisabled' : false,
+                'autoPlay' : true,
+                'sourceType': 'url'
+            },
+            'readyCallback': function(playerId) {
+                console.log( "kWidget player ready: " + playerId );
+                kdp = document.getElementById(playerId);
+                kdp.addJsListener( 'doPlay', function() {console.log('doPlay')});
+                setTimeout(processFrame, 100);
+            }
+        });
+
+        var canvas = document.getElementById('currentFrame');
+        var context = canvas.getContext('2d');
+
+        var processFrame = function() {
+            var video = $(kdp).find('iframe').contents().find('video');
+            if (video.length > 0) {
+                context.drawImage(video.get(0), 0, 0, 640, 264);
+            }
+            setTimeout(processFrame, 100);
+        }
+
+    </script>  
+</body>
+</html>
